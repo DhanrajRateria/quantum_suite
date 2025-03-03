@@ -1,9 +1,9 @@
 import os
 from typing import Tuple, List
-from ..auxiliary.cryptographic.functions import PRF
-from ..auxiliary.general.functions import byte_encode, sample_poly_cbd, bytes_to_bits
-from ..auxiliary.transform.functions import ntt, multiply_ntts
-from keygen import poly_add
+from auxiliary.cryptographic.functions import PRF
+from auxiliary.general.functions import byte_encode, sample_poly_cbd, bytes_to_bits, compress
+from auxiliary.transform.functions import ntt, multiply_ntts
+from .keygen import poly_add
 
 def encode_message(m: bytes, q: int = 3329) -> List[int]:
     """
@@ -82,8 +82,10 @@ def k_pke_encrypt(
     # -------------------------------
     # 3. Compress and encode (u_hat, v_hat) into bytes
     # -------------------------------
-    c1 = byte_encode(u_hat, d)
-    c2 = byte_encode(v_hat, d)
+    u_hat_compressed = [compress(coeff, d) for coeff in u_hat]
+    c1 = byte_encode(u_hat_compressed, d)
+    v_hat_compressed = [compress(coeff, d) for coeff in v_hat]
+    c2 = byte_encode(v_hat_compressed, d)
 
     # -------------------------------
     # 4. Output ciphertext c
@@ -107,7 +109,7 @@ if __name__ == "__main__":
     ek_demo = (A_demo, t_hat_demo)
 
     # 32-byte message
-    message = b"Test message for K-PKE!!!"  # exactly 32 bytes
+    message = b"01234567890123456789012345678901"  # exactly 32 bytes
 
     # 32-byte random seed for ephemeral sampling
     ephemeral_r = os.urandom(32)

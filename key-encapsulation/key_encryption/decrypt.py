@@ -1,6 +1,6 @@
 from typing import Tuple, List
-from ..auxiliary.general.functions import byte_decode, bits_to_bytes
-from ..auxiliary.transform.functions import ntt, ntt_inv, multiply_ntts
+from auxiliary.general.functions import byte_decode, bits_to_bytes, decompress
+from auxiliary.transform.functions import ntt, ntt_inv, multiply_ntts
 
 def decode_message(poly: List[int], q: int = 3329) -> bytes:
     """

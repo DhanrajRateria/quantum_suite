@@ -26,15 +26,16 @@ def ml_kem_encaps_internal(ek: bytes, r: bytes, d: int) -> Tuple[bytes, bytes]:
 
     # 2. Derive ephemeral randomness for the K-PKE encryption from ek + r
     #    Typical approach: ephemeral_r = G(H(ek) || r)
-    from ..auxiliary.cryptographic.functions import H, G  # Adjust import to your code
+    from auxiliary.cryptographic.functions import H, G  # Adjust import to your code
     # We'll do a simple approach:
     hashed_ek = H(ek[0].__repr__().encode())  # e.g., hash the string representation of ek_pke
     # Concatenate hashed_ek + r and feed to G:
     ephemeral_input = hashed_ek + r
-    ephemeral_r = G(ephemeral_input)[0:32]  # G returns 64 bytes, for example, we take first 32
+    k1, k2 = G(ephemeral_input)  # G returns 64 bytes, for example, we take first 32
+    ephemeral_r = k1
 
     # 3. Encrypt ephemeral_r under K-PKE
-    from ..key_encryption.encrypt import k_pke_encrypt  # Adjust import path
+    from key_encryption.encrypt import k_pke_encrypt  # Adjust import path
     # In many KEMs, the ephemeral random is the "message" or the "encryption randomness".
     # We'll treat ephemeral_r as the "randomness" for K-PKE.Encrypt.
     # If your K-PKE.Encrypt expects a 32-byte message, we can do so:

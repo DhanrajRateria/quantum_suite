@@ -1,8 +1,8 @@
 import os
 from typing import Tuple, List
-from ..auxiliary.cryptographic.functions import PRF
-from ..auxiliary.general.functions import byte_encode, sample_poly_cbd, sample_ntt
-from ..auxiliary.transform.functions import ntt, multiply_ntts
+from auxiliary.cryptographic.functions import PRF
+from auxiliary.general.functions import byte_encode, sample_poly_cbd, sample_ntt, compress
+from auxiliary.transform.functions import ntt, multiply_ntts
 
 def poly_add(a: List[int], b: List[int], q: int = 3329) -> List[int]:
     """
@@ -60,7 +60,8 @@ def k_pke_keygen(d: int,
     t_hat = poly_add(product, s2_hat)
 
     # 5. Encode t_hat -> b for the decryption key
-    b_enc = byte_encode(t_hat, d)
+    t_hat_compressed = [compress(coeff, d) for coeff in t_hat]
+    b_enc = byte_encode(t_hat_compressed, d)
 
     # 6. Return keys
     # eK_{K-PKE} = (A, t_hat)

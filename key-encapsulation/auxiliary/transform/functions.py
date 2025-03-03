@@ -33,6 +33,7 @@ GAMMA_PRECOMP = [
 ]
 
 ZETA_PRECOMP_INV = [pow(z, -1, Q) for z in ZETA_PRECOMP]
+GAMMA_PRECOMP = [(g % Q) for g in GAMMA_PRECOMP]
 
 def bitrev7(i: int) -> int:
     """Bit-reverse a 7-bit number"""
@@ -45,14 +46,14 @@ def bitrev7(i: int) -> int:
 def ntt(f: list[int]) -> list[int]:
     """Algorithm 9: Forward NTT transform"""
     f_hat = copy.copy(f)
-    k = 1  # ZETA_PRECOMP index
+    k = 0  # ZETA_PRECOMP index
     
     # Layers from len=128 down to 2
     length = 128
     while length >= 2:
         for start in range(0, N, 2*length):
             zeta = ZETA_PRECOMP[k]
-            k += 1
+            k += 1  
             
             for j in range(start, start + length):
                 t = (zeta * f_hat[j + length]) % Q
@@ -92,8 +93,14 @@ def ntt_inv(f_hat: list[int]) -> list[int]:
 
 def base_case_multiply(a0: int, a1: int, b0: int, b1: int, gamma: int) -> tuple[int, int]:
     """Algorithm 12: Base case polynomial multiplication"""
-    c0 = (a0 * b0 % Q + a1 * b1 % Q * gamma % Q) % Q
-    c1 = (a0 * b1 % Q + a1 * b0 % Q) % Q
+    c0 = (a0 * b0) % Q
+    c1_term = (a1 * b1) % Q
+    c1_term = (c1_term * gamma) % Q
+    c0 = (c0 + c1_term) % Q
+    
+    c1 = (a0 * b1) % Q
+    c1 = (c1 + (a1 * b0) % Q) % Q   
+    
     return c0, c1
 
 def multiply_ntts(f_hat: list[int], g_hat: list[int]) -> list[int]:
@@ -135,14 +142,17 @@ def test_ntt_operations():
     assert match, "NTT inversion failed"
     
     # Test multiplication
-    g = [2] * N  # Constant polynomial 2
+    g = [2] + [0] * (N-1)  # Constant polynomial 2
     g_hat = ntt(g)
     h_hat = multiply_ntts(f_hat, g_hat)
     h = ntt_inv(h_hat)
     
     # Expected result: 2x + 2
-    expected = [2] * N
-    expected[1] = 2
+    expected = [2, 2] + [0] * (N-2)
+    for i in range(N):
+        if h[i] != expected[i]:
+            print(f"Multiplication mismatch at index {i}: Expected {expected[i]}, got {h[i]}")
+    
     assert h == expected, "NTT multiplication failed"
     
     print("All NTT operations tests passed!")

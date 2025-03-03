@@ -20,7 +20,7 @@ def ml_kem_keygen_internal(d: int) -> Tuple[bytes, bytes]:
     """
     # 1. Generate the K-PKE key pair
     #    k_pke_keygen(d) returns ((A, t_hat), (b_enc, s1, s2)) or similar
-    from ..key_encryption.keygen import k_pke_keygen  # Adjust your import as needed
+    from key_encryption.keygen import k_pke_keygen  # Adjust your import as needed
     (A, t_hat), (b_enc, s1, s2) = k_pke_keygen(d)
 
     # 2. Package them into ML-KEM's "ek" (encapsulation key) and "dk" (decapsulation key).

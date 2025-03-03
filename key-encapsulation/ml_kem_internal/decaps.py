@@ -27,11 +27,11 @@ def ml_kem_decaps_internal(dk: bytes, c: bytes, d: int) -> bytes:
     dk_pke = dk[0]  # (b_enc, s1, s2)
 
     # 2. Decrypt to recover ephemeral_r
-    from ..key_encryption.decrypt import k_pke_decrypt  # Adjust to your code path
+    from key_encryption.decrypt import k_pke_decrypt  # Adjust to your code path
     ephemeral_r = k_pke_decrypt(dk_pke, c, d)
 
     # 3. Derive the shared key K = H(ephemeral_r)
-    from ..auxiliary.cryptographic.functions import H
+    from auxiliary.cryptographic.functions import H
     K = H(ephemeral_r)
 
     return K
