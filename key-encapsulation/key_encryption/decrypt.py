@@ -47,8 +47,11 @@ def k_pke_decrypt(
     # -----------------------------------------------------
     # 2. Decompress + ByteDecode => polynomials in NTT domain
     # -----------------------------------------------------
-    u_hat = byte_decode(c1, d)  # length 256
-    v_hat = byte_decode(c2, d)  # length 256
+    u_hat_compressed = byte_decode(c1, d)  # length 256
+    v_hat_compressed = byte_decode(c2, d)  # length 256
+
+    u_hat = [decompress(y, d) for y in u_hat_compressed]
+    v_hat = [decompress(y, d) for y in v_hat_compressed]
 
     # -----------------------------------------------------
     # 3. Convert s1 to NTT domain
